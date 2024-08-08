@@ -1,1 +1,5 @@
 *.jpg
+bin/*
+lib/*
+pyvenv.cfg
+__pycache__/*
