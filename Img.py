@@ -2,7 +2,7 @@ from PIL import Image, ImageDraw, ImageFont
 
 class Img:
     def __init__(self) -> None:
-        def createCarts():
+        def createCarts() -> dict[str,bool]:
             carts = {}
             for nummer in "1234":
                 for letter in "abcd":
@@ -34,7 +34,7 @@ class Img:
         for i in range(START,self.img.size[1],STEPS):
             self.draw.line([(0,i),(self.img.size[0],i)], fill=color, width=width)
 
-    def drawLetters(self, color, letters:list):
+    def drawLetters(self, color, letters:list[str]):
         assert(len(letters) == 8)
         START_H = 630
         START_V = 600
@@ -54,10 +54,13 @@ class Img:
         COLUMS = 4
         START = 590
         STEPS = 300
-
+        
+        it = iter(self.carts.items())
         for x in range(0,COLUMS):
             for y in range(0,ROWS):
-                self.draw.text((START + x * STEPS,START + y * STEPS),"1a".upper(),fill=color, font=self.font,align="center")
+                letter, var = next(it)
+                if var:
+                    self.draw.text((START + x * STEPS,START + y * STEPS),letter,fill=color, font=self.font,align="center")
 
     def update(self):
         self.drawCarts("black")
@@ -71,4 +74,6 @@ class Img:
 
 if __name__ == "__main__":
     img = Img()
+    img.addCart("c4")
+    img.addCart("b2")
     img.show()
