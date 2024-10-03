@@ -1,13 +1,21 @@
 from PIL import Image, ImageDraw, ImageFont
+import random
 
 class Img:
     def __init__(self, words:list[str]) -> None:
-        def createCarts() -> dict[str,bool]:
+        def createCartsDic() -> dict[str,bool]:
             carts = {}
             for nummer in "1234":
                 for letter in "abcd":
                     carts[f"{letter}{nummer}"] = False
             return carts
+        def createCarts(carts_draw:dict[str,bool]) -> list[str]:
+            carts = []
+            for letter,var in carts_draw.items():
+                carts.append(letter)
+            random.shuffle(carts)            
+            return carts
+
         assert(len(words) == 8)
         self.words = words
         self.img = Image.new("RGB", (1700,1700), color="white")
@@ -19,7 +27,8 @@ class Img:
         self.drawBackregister("black", 5)
         self.drawLetters(["1","2","3","4","A","B","C","D"])
         self.drawWords()
-        self.carts = createCarts()
+        self.carts_draw = createCartsDic()
+        self.carts_iter = iter(createCarts(self.carts_draw))
 
         
 
@@ -75,7 +84,7 @@ class Img:
         START = 590
         STEPS = 300
         
-        it = iter(self.carts.items())
+        it = iter(self.carts_draw.items())
         for x in range(0,COLUMS):
             for y in range(0,ROWS):
                 letter, var = next(it)
@@ -90,11 +99,13 @@ class Img:
         self.drawCorner()
 
     def addCart(self, cart:str):
-        assert(cart in self.carts.keys())
-        self.carts[cart] = True
+        assert(cart in self.carts_draw.keys())
+        self.carts_draw[cart] = True
     
-    def reduceCarts(self):
+    def reduceCarts(self) -> str:
         self.numCarts += -1
+        return next(self.carts_iter)
+        
 
     def addDiscard(self):
         self.discard += 1
@@ -141,7 +152,7 @@ if __name__ == "__main__":
     img = Img(["Haus","Pflanze","Ritter","See","Frau","Liebe","Essen","Apfelkuchen"])
     img.addCart("c4")
     # img.addCart("b2")
-    img.reduceCarts()
-    img.addDiscard()
+    print(img.reduceCarts())
+    # img.addDiscard()
     # img.show()
     img.save("test.png")
