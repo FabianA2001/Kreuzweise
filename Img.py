@@ -20,11 +20,16 @@ class Img:
         self.drawLetters(["1","2","3","4","A","B","C","D"])
         self.drawWords()
         self.carts = createCarts()
+
         
 
     def show(self):
         self.update()
         self.img.show()
+
+    def save(self,str):
+        self.update()
+        self.img.save(str)
 
     def drawBackregister(self, color, width):
         STEPS = 300
@@ -55,18 +60,15 @@ class Img:
             self.draw.text((OFFSET_V,i),next(it),fill=self.fontColor, font=self.font,align="center")
 
     def drawWords(self):
-        START_H = 930
-        START_V = 600
+        START = 500
         STEPS = 300
-        OFFSET_H =-12 
-        OFFSET_V =25
-        # it = iter(self.words) 
-        # for i in range(START_H,self.img.size[1],STEPS):
-        #     self.draw.text((i,OFFSET_H),next(it),fill=self.fontColor, font=self.font,align="center")
-        # for i in range(START_V,self.img.size[0],STEPS):
-        #     self.draw.text((OFFSET_V,i),next(it),fill=self.fontColor, font=self.font,align="center")
-        self.drawBig(100,500,400,300,"Test")
+        it = iter(self.words) 
+        for i in range(START,self.img.size[1],STEPS):
+            self.draw_text_big((100,i,500,i + STEPS),next(it),35)
+        for i in range(START,self.img.size[1],STEPS):
+            self.draw_text_big((i,100,i+ STEPS,500),next(it),35)
     
+
     def drawCarts(self):
         ROWS = 4
         COLUMS = 4
@@ -96,36 +98,50 @@ class Img:
 
     def addDiscard(self):
         self.discard += 1
+    
+    def draw_point_debugg(self,x,y):
+        self.draw.line((0,y,self.img.width,y),fill="red")
+        self.draw.line((x,0,x,self.img.height),fill="red") 
 
-    def drawBig(self,x:int,y:int,height:int,width:int, text:str):
-        OFFSET = 20
-        font_size = 10
+    def draw_text_big(self,box:tuple[int,int,int,int],text:str, padding:int = 0):
         font = self.font
-        box = (x+OFFSET, y + OFFSET, x+height-OFFSET, y+width-OFFSET)
-        # self.draw.rectangle(box,fill="Black")
-        while True:
-            font = ImageFont.truetype(font.path,font_size)
-            text_bbox = self.draw.textbbox((0, 0), text, font=font)
-            text_width = text_bbox[2] - text_bbox[0]
-            text_height = text_bbox[3] - text_bbox[1] 
-            if text_width > (box[2] - box[0]) or text_height > (box[3] - box[1]):
-                break
-            font_size += 1 
+        font_size = 10 
+        font_path = font.path
+        box_mid_with = (box[2] - box[0]) // 2 + box[0]
+        box_mid_hight = (box[3] - box[1]) // 2 + box[1]
 
+        font = ImageFont.truetype(font_path, font_size)
+        while True:
+            # Measure the text size
+            textBox= self.draw.textbbox((box_mid_with,box_mid_hight),text,font,"mm")
+
+            # If the text fits within the box, break
+            if textBox[0] - padding < box[0]:
+                break
+
+            if textBox[1] - padding < box[1]:
+                break
+
+            if textBox[2] +padding > box[2]:
+                break
+
+            if textBox[3] +padding > box[3]:
+                break
+
+            # Reduce the font size and try again
+            font_size += 1
+            font = ImageFont.truetype(font_path, font_size)
         font_size -= 1
-        font = ImageFont.truetype(font.path,font_size)
-        text_bbox = self.draw.textbbox((0, 0), text, font=font)
-        text_width = text_bbox[2] - text_bbox[0]
-        text_height = text_bbox[3] - text_bbox[1]
-        text_x = box[0] + (box[2] - box[0] - text_width) // 2
-        text_y = box[1] + (box[3] - box[1] - text_height) // 2
-        self.draw.text((text_x, text_y), text, font=font, fill=self.fontColor) 
+        font = ImageFont.truetype(font_path, font_size)
+        self.draw.text((box_mid_with, box_mid_hight), text, font=font, fill=(0, 0, 0),anchor="mm")
+
 
 
 if __name__ == "__main__":
     img = Img(["Haus","Pflanze","Ritter","See","Frau","Liebe","Essen","Apfelkuchen"])
     img.addCart("c4")
-    img.addCart("b2")
+    # img.addCart("b2")
     img.reduceCarts()
     img.addDiscard()
-    img.show()
+    # img.show()
+    img.save("test.png")
