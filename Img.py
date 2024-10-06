@@ -3,6 +3,7 @@ import random
 
 class Img:
     def __init__(self, words:list[str]) -> None:
+        print("init img")
         def createCartsDic() -> dict[str,bool]:
             carts = {}
             for nummer in "1234":
@@ -27,18 +28,23 @@ class Img:
         self.drawBackregister("black", 5)
         self.drawLetters(["1","2","3","4","A","B","C","D"])
         self.drawWords()
+        self.drawCorner()
         self.carts_draw = createCartsDic()
         self.carts_iter = iter(createCarts(self.carts_draw))
 
         
 
-    def show(self):
-        self.update()
-        self.img.show()
+    # def show(self):
+    #     self.update()
+    #     self.img.show()
 
-    def save(self,str):
-        self.update()
-        self.img.save(str)
+    # def save(self,str:str):
+    #     self.update()
+    #     self.img.save(str)
+
+    # def save(self,bit, str:str):
+    #     self.update()
+    #     self.img.save(bit, str)
 
     def drawBackregister(self, color, width):
         STEPS = 300
@@ -92,15 +98,18 @@ class Img:
                     self.draw.text((START + x * STEPS,START + y * STEPS),letter,fill=self.fontColor, font=self.font,align="center")
     
     def drawCorner(self):
+        self.draw.rectangle((0,0,500,500),fill="white")
         self.draw.multiline_text((30,20),f"Karten:\n{self.numCarts}\nVerkackt:\n{self.discard}",fill=self.fontColor, font=self.font,align="left")
 
     def update(self):
         self.drawCarts()
         self.drawCorner()
 
-    def addCart(self, cart:str):
-        assert(cart in self.carts_draw.keys())
+    def addCart(self, cart:str) -> bool:
+        if cart not  in self.carts_draw.keys():
+            return False
         self.carts_draw[cart] = True
+        return True
     
     def reduceCarts(self) -> str:
         self.numCarts += -1
@@ -151,8 +160,9 @@ class Img:
 if __name__ == "__main__":
     img = Img(["Haus","Pflanze","Ritter","See","Frau","Liebe","Essen","Apfelkuchen"])
     img.addCart("c4")
-    # img.addCart("b2")
+    img.addCart("b2")
     print(img.reduceCarts())
-    # img.addDiscard()
+    img.addDiscard()
     # img.show()
-    img.save("test.png")
+    img.update()
+    img.img.save("test.png")
